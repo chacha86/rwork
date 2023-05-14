@@ -369,3 +369,114 @@ str(apt2)
 ### 귀무가설 전용이 크면 따라 분양가격의 차이가 안난다
 ### 대립가설 전용면적에 따라 분양가격의 차이가 난다 
 
+
+
+
+str(sts)
+
+sts %>%
+  t_test(
+    formula = 평균~성별, order = c('M', 'F'), alternative = 'less'
+  )
+
+
+# statistic : 검정 통계량. t값이라고도 한다.
+# t_df : 자유도. 보통 표본의 개수 - 1
+# p_value : 해당 분포에서의 유의 확률
+# alternative : 한쪽, 양쪽 검정
+# estimate : 추정치
+# lower_ci : 최소 신뢰 구간
+# upper_ci : 최대 신뢰 구간
+
+
+## t 검정
+sts %>%
+  specify(평균~성별) %>%
+  hypothesize(null = 'independence') %>%  
+  calculate(stat='t', order=c('M', 'F')) %>%
+  visualize(method = 'theoretical') +
+  stat_function(fun = dnorm, color='red')
+
+
+sts %>%
+  specify(response = 평균) %>%
+  t_test(null_value = 80, alternative = "two_sided") %>%
+  calculate(stat = "z")
+## 카이 제곱 검정
+
+
+
+
+
+
+## 수학 점수는 성적에 어떤 영향을 미칠까?
+
+sts %>%
+  ggplot(aes(x=수학, y=평균)) +
+  geom_point()  
+
+
+
+
+
+
+
+
+
+
+
+
+kbo <- read.csv('data/2020_kbo_team_batting.csv')
+
+kbo
+
+
+set.seed(1234)
+
+## 편차 * 편차 == 편차 제곱
+## 편차를 표준편차로 나누는 것 => 표준화
+## 편차 * 편차
+kbo %>%
+  mutate(
+    runs_z_score = (runs - mean(runs)) / sd(runs),
+    avg_z_score = (avg - mean(runs)) / sd(avg),
+    rectangle_size = runs_z_score * avg_z_score
+  ) %>%
+  summarise(size_sum = sum(rectangle_size) / 9)
+
+
+cor.test(sts$수학, sts$평균)
+
+# 평균 = 0.982 * 수학
+
+# sts$평균  ==  sd(sts$평균) / sd(sts$수학) * (sts$수학 - mean(sts$수학)) + mean(sts$평균)
+
+
+sd(sts$평균) / sd(sts$수학) * (sts$수학 - mean(sts$수학)) + mean(sts$평균)
+
+
+a <- sd(sts$평균) / sd(sts$수학)
+b <- a * mean(sts$수학)
+c <- mean(sts$평균)
+
+
+# 회귀식
+a * sts$수학 - b + c
+
+a
+
+c - b
+
+my_fun <- function(x) {
+  return ((0.5742 * x) + 33.3952)
+}
+
+sts %>%
+  ggplot(aes(x=수학, y=평균)) +
+  geom_point() +
+  stat_function(fun=my_fun) +
+  geom_smooth(method = 'lm')
+
+
+
+
